@@ -3,12 +3,8 @@ dir_name = 'main'
 
 added_files = []
 
-# key goes (file to copy, path to move it to (relative to exe))
-added_files.append(('assets/doge.ply', 'assets'))
-added_files.append(('icon.ico', '.'))
-
 a = Analysis(
-    ["main.py"],
+    ["main.py", "script.py"],
     pathex=[],
     binaries=[],
     datas=added_files,
@@ -31,13 +27,12 @@ exe = EXE(pyz,
           a.scripts,
           [],
           exclude_binaries=True,
-          name="DogeViewer",
+          name="GIVAViewer",
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=True,
-          icon='icon.ico')
+          console=True,)
 
 coll = COLLECT(exe,
                a.binaries,

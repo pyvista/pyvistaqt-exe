@@ -28,10 +28,6 @@ def resource_path(relative_path=""):
     return os.path.join(base_path, relative_path)
 
 
-DOGE_FILE = resource_path(os.path.join("assets", "doge.ply"))
-ICON_FILE = resource_path(os.path.join(".", "icon.ico"))
-
-
 class MyMainWindow(MainWindow):
     def __init__(self, parent=None, show=True):
         QtWidgets.QMainWindow.__init__(self, parent)
@@ -67,13 +63,9 @@ class MyMainWindow(MainWindow):
             self.show()
 
 
-def add_data(plotter):
-    mesh = pv.read("sample.vtk")
-    plotter.add_mesh(mesh, show_edges=True)
-
-
 if __name__ == "__main__":
+    from script import bind_to_plotter
     app = QtWidgets.QApplication(sys.argv)
     window = MyMainWindow()
-    add_data(window.plotter)
+    bind_to_plotter(window.plotter)
     sys.exit(app.exec_())
