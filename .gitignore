@@ -1,0 +1,9 @@
+# emacs
+*~
+
+# virtual env
+/.venv
+
+# pyinstaller
+dist/
+build/
