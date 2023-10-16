@@ -58,26 +58,22 @@ class MyMainWindow(MainWindow):
         exitButton.triggered.connect(self.close)
         fileMenu.addAction(exitButton)
 
-        # allow adding a sphere
-        meshMenu = mainMenu.addMenu("Mesh")
-        self.add_sphere_action = QtWidgets.QAction("Add Sphere", self)
-        self.add_sphere_action.triggered.connect(self.add_sphere)
-        meshMenu.addAction(self.add_sphere_action)
+        clr_menu = mainMenu.addMenu("Clear")
+        clr_menu.addAction("Clear", self.plotter.clear_actors)
 
-        # demonstrate using a built-in asset
-        self.plotter.add_mesh(pv.read(DOGE_FILE), color="tan")
+        self.plotter.main_menu = mainMenu
 
         if show:
             self.show()
 
-    def add_sphere(self):
-        """add a sphere to the pyqt frame"""
-        sphere = pv.Sphere()
-        self.plotter.add_mesh(sphere, show_edges=True)
-        self.plotter.reset_camera()
+
+def add_data(plotter):
+    mesh = pv.read("sample.vtk")
+    plotter.add_mesh(mesh, show_edges=True)
 
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = MyMainWindow()
+    add_data(window.plotter)
     sys.exit(app.exec_())
