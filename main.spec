@@ -20,6 +20,8 @@ a = Analysis(
         "vtkmodules.util.numpy_support",
         "vtkmodules.numpy_interface.dataset_adapter",
         "vtkmodules.vtkFiltersGeneral",
+        "scipy.stats"
+        "pandas",
     ],
 )
 block_cipher = None

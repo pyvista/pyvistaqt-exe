@@ -5,3 +5,7 @@ pytest==7.4.0
 pyvista
 pyvistaqt
 vtk
+PVGeo
+pandas
+matplotlib
+scipy

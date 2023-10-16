@@ -9,6 +9,13 @@ import pyvista as pv
 from pyvistaqt import MainWindow, QtInteractor
 from qtpy import QtGui, QtWidgets
 
+import PVGeo
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
+from matplotlib.colors import ListedColormap
+from scipy.stats import entropy
+
 
 def resource_path(relative_path=""):
     """Get absolute path to resource, works for dev and for PyInstaller."""
