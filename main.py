@@ -7,7 +7,8 @@ os.environ["QT_API"] = "pyqt5"
 import numpy as np
 import pyvista as pv
 from pyvistaqt import MainWindow, QtInteractor
-from qtpy import QtWidgets, QtGui
+from qtpy import QtGui, QtWidgets
+
 
 def resource_path(relative_path=""):
     """Get absolute path to resource, works for dev and for PyInstaller."""
@@ -19,15 +20,16 @@ def resource_path(relative_path=""):
 
     return os.path.join(base_path, relative_path)
 
-DOGE_FILE = resource_path(os.path.join('assets', 'doge.ply'))
-ICON_FILE = resource_path(os.path.join('.', 'icon.ico'))
+
+DOGE_FILE = resource_path(os.path.join("assets", "doge.ply"))
+ICON_FILE = resource_path(os.path.join(".", "icon.ico"))
 
 
 class MyMainWindow(MainWindow):
     def __init__(self, parent=None, show=True):
         QtWidgets.QMainWindow.__init__(self, parent)
 
-        self.setWindowIcon(QtGui.QIcon('icon.ico'))
+        self.setWindowIcon(QtGui.QIcon("icon.ico"))
 
         # create the frame
         self.frame = QtWidgets.QFrame()
@@ -56,7 +58,7 @@ class MyMainWindow(MainWindow):
         meshMenu.addAction(self.add_sphere_action)
 
         # demonstrate using a built-in asset
-        self.plotter.add_mesh(pv.read(DOGE_FILE), color='tan')
+        self.plotter.add_mesh(pv.read(DOGE_FILE), color="tan")
 
         if show:
             self.show()
