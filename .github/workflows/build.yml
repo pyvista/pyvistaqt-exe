@@ -30,8 +30,13 @@ jobs:
       run: |
         pyinstaller main.spec
 
+    - uses: vimtor/action-zip@v1.1
+      with:
+        files: dist/main
+        dest: doge.zip
+
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: Application
-        path: dist/main/
+        path: doge.zip
