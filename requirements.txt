@@ -1,7 +1,11 @@
+matplotlib
 numpy
+pandas
+PVGeo
 pyinstaller==6.1.0
 PyQt5
 pytest==7.4.0
 pyvista
 pyvistaqt
+scipy
 vtk
