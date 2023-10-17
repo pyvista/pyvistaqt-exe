@@ -8,13 +8,8 @@ import numpy as np
 import pyvista as pv
 from pyvistaqt import MainWindow, QtInteractor
 from qtpy import QtGui, QtWidgets
-
-import PVGeo
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
-from matplotlib.colors import ListedColormap
-from scipy.stats import entropy
+from pyvistaqt.dialog import ScaleAxesDialog
+from pyvistaqt.utils import _create_menu_bar
 
 
 def resource_path(relative_path=""):
@@ -46,21 +41,29 @@ class MyMainWindow(MainWindow):
         self.frame.setLayout(vlayout)
         self.setCentralWidget(self.frame)
 
+        self.plotter.app_window = self
+
         # simple menu to demo functions
-        mainMenu = self.menuBar()
-        fileMenu = mainMenu.addMenu("File")
+        self.main_menu = _create_menu_bar(self)
+        file_menu = self.main_menu.addMenu("File")
         exitButton = QtWidgets.QAction("Exit", self)
         exitButton.setShortcut("Ctrl+Q")
         exitButton.triggered.connect(self.close)
-        fileMenu.addAction(exitButton)
+        file_menu.addAction(exitButton)
 
-        clr_menu = mainMenu.addMenu("Clear")
-        clr_menu.addAction("Clear", self.plotter.clear_actors)
+        view_menu = self.main_menu.addMenu("View")
+        view_menu.addAction("Clear", self.plotter.clear_actors)
+        view_menu.addAction("Scale Axes", self.scale_axes_dialog)
 
-        self.plotter.main_menu = mainMenu
+        # App specific
+        self.plotter.main_menu = self.main_menu
 
         if show:
             self.show()
+
+    def scale_axes_dialog(self, show: bool = True) -> ScaleAxesDialog:
+        """Open scale axes dialog."""
+        return ScaleAxesDialog(self, self.plotter, show=show)
 
 
 if __name__ == "__main__":

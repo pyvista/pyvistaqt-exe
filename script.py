@@ -19,7 +19,7 @@ import matplotlib as mpl
 
 mpl.rcParams["figure.dpi"] = 500
 
-# pv.set_plot_theme("dark")
+pv.set_plot_theme("dark")
 
 
 # In[ ]:
@@ -126,11 +126,16 @@ def decompose_wells(wpdi):
 
 def bind_to_plotter(plotter):
 
+    # # Add Tunnel Alignment and Identify Ring Markers
+
+    # In[3]:
+
+
     tunnel_var = pd.read_csv("data/Final-DTA.csv")
     tunnel_var.tail()
 
 
-    # In[ ]:
+    # In[4]:
 
 
     # Select very 50th ring for labels
@@ -143,7 +148,7 @@ def bind_to_plotter(plotter):
     end_ring_sel[:, 2] -= 50
 
 
-    # In[ ]:
+    # In[5]:
 
 
     line_ring = np.concatenate((ring_sel, end_ring_sel), axis=1).reshape(
@@ -151,7 +156,7 @@ def bind_to_plotter(plotter):
     )  # from six columns to three columns, start and end on consecutive rows
 
 
-    # In[ ]:
+    # In[6]:
 
 
     vertices = line_ring
@@ -163,7 +168,7 @@ def bind_to_plotter(plotter):
     ring_labels["Ring Labels"] = [f"R-{i*50}" for i in range(ring_labels.n_points)]
 
 
-    # In[ ]:
+    # In[7]:
 
 
     spat_ref = ["Easting", "Northing", "Tun-Elevation"]
@@ -177,7 +182,7 @@ def bind_to_plotter(plotter):
     tunnel_ci_ch = polyline_from_points(tunnel_ch_pts).tube(radius=r)
 
 
-    # In[ ]:
+    # In[8]:
 
 
     tunnel_ci_path = polyline_from_points(tunnel_ring_pts)
@@ -189,59 +194,76 @@ def bind_to_plotter(plotter):
 
     # # Add Real-Time Tunnel Boring Machine Data
 
-    # In[ ]:
+    # In[63]:
 
 
     tbm_data_1 = pd.read_csv(
-        "data/CI Main Tunnel_Rajat-Output_2021-08-12_2021-11-25.csv", sep=";"
-    )
+        "data/CI Main Tunnel_Rajat-Output_ring_1_to_948.csv",sep=";")
     tbm_data_2 = pd.read_csv(
-        "data/CI Main Tunnel_Rajat-Output_2021-11-25_2021-12-24.csv", sep=";"
-    )
-    tbm_data_3 = pd.read_csv("data/CI Main Tunnel_Rajat-Output_ring_226_to_274.csv", sep=";")
+        "data/CI Main Tunnel P2_Rajat-Output_ring_948_to_2563.csv",sep=";")
+    tbm_data_3 = pd.read_csv(
+        "data/CI Main Tunnel P3_Rajat-Output_ring_2564_to_4755.csv",sep=";")
+    tbm_data_4 = pd.read_csv(
+        "data/CI Main Tunnel P4_Rajat-Output_ring_4756_to_5023.csv",sep=";")
 
 
-    # In[ ]:
+    # In[64]:
 
 
-    tbm_data = pd.concat([tbm_data_1, tbm_data_2, tbm_data_3], ignore_index=True)
-    # Convert Timestamp colume to DateTime
+    tbm_data = pd.concat([tbm_data_1, tbm_data_2,tbm_data_3,tbm_data_4], ignore_index=True)
     tbm_data["Timestamp"] = pd.to_datetime(tbm_data["Timestamp"])
-    tbm_data = tbm_data[tbm_data["Ring"] >= 1]
     tbm_data = tbm_data[
-        (tbm_data["QDV_Excavation_chamber_pressure_02"] <= 10)
-        & (tbm_data["QDV_Excavation_chamber_pressure_02"] > 0)
+        (tbm_data["Earth Pressure.EP2"] <= 10)
+        & (tbm_data["Earth Pressure.EP2"] > 0)
     ]
-    tbm_data_mean = tbm_data.groupby(["Ring"]).mean().reset_index()
-    tbm_data_mean = tbm_data_mean.drop("Unnamed: 14", axis=1)
-    tbm_data_mean = tbm_data_mean.drop("QDV_Drill_rig_01_rotation_speed", axis=1)
-    # tbm_data_mean = tbm_data_mean.drop('Ring', 1)
-    tbm_data_mean.columns = tbm_data_mean.columns.str.replace(r"QDV_", "")
-    tbm_data_mean["Advance_thrust_force"] = tbm_data_mean["Advance_thrust_force"] / 10
-    tbm_data_mean = tbm_data_mean.round(2)
-    tbm_data_mean = pd.merge(tbm_data_mean, tunnel_var, on=["Ring"], how="left")
+    tbm_data = tbm_data.drop("Unnamed: 26", axis=1)
+    tbm_data = tbm_data.round(2)
+    tbm_data_mean = pd.merge(tbm_data, tunnel_var, on=["Ring"], how="left")
     tbm_data_mean = tbm_data_mean.dropna(axis="rows")
+    tbm_data_mean.head()
+
+
+    # In[10]:
+
+
+    #tbm_data = pd.concat([tbm_data_1, tbm_data_2, tbm_data_3], ignore_index=True)
+    # Convert Timestamp colume to DateTime
+    #tbm_data["Timestamp"] = pd.to_datetime(tbm_data["Timestamp"])
+    #tbm_data = tbm_data[tbm_data["Ring"] >= 1]
+    #tbm_data = tbm_data[
+    #   (tbm_data["QDV_Excavation_chamber_pressure_02"] <= 10)
+    #  & (tbm_data["QDV_Excavation_chamber_pressure_02"] > 0)
+    #]
+    #tbm_data_mean = tbm_data.groupby(["Ring"]).mean().reset_index()
+    #tbm_data_mean = tbm_data_mean.drop("Unnamed: 14", axis=1)
+    #tbm_data_mean = tbm_data_mean.drop("QDV_Drill_rig_01_rotation_speed", axis=1)
+    # tbm_data_mean = tbm_data_mean.drop('Ring', 1)
+    #tbm_data_mean.columns = tbm_data_mean.columns.str.replace(r"QDV_", "")
+    #tbm_data_mean["Advance_thrust_force"] = tbm_data_mean["Advance_thrust_force"] / 10
+    #tbm_data_mean = tbm_data_mean.round(2)
+    #tbm_data_mean = pd.merge(tbm_data_mean, tunnel_var, on=["Ring"], how="left")
+    #tbm_data_mean = tbm_data_mean.dropna(axis="rows")
     # tbm_data_mean = tbm_data_mean[tbm_data_mean['Ring'] < 225]
 
 
-    # In[ ]:
+    # In[65]:
 
 
     spat_ref = ["Easting", "Northing", "Tun-Elevation"]
     tunnel_tbm_pts = pv.PolyData(tbm_data_mean[spat_ref].values)
 
     tunnel_tbm_pts["Ring"] = tbm_data_mean["Ring"].values
-    tunnel_tbm_pts["PR"] = tbm_data_mean["Penetration"].values
-    tunnel_tbm_pts["AR"] = tbm_data_mean["Advance_speed"].values
-    tunnel_tbm_pts["EP"] = tbm_data_mean["Excavation_chamber_pressure_02"].values
-    tunnel_tbm_pts["Torque"] = tbm_data_mean["Main_drive_torque"].values
-    tunnel_tbm_pts["Thrust"] = tbm_data_mean["Advance_thrust_force"].values
+    tunnel_tbm_pts["PR"] = tbm_data_mean["KPI.Penetration"].values
+    tunnel_tbm_pts["AR"] = tbm_data_mean["KPI.Adv Speed"].values
+    tunnel_tbm_pts["EP"] = tbm_data_mean["Earth Pressure.EP2"].values
+    tunnel_tbm_pts["Torque"] = tbm_data_mean["KPI.CH Torque"].values
+    tunnel_tbm_pts["Thrust"] = tbm_data_mean["KPI.Tot Thrust Force"].values
 
     # # Make tubes/tunnels
     tunnel_ci_tbm = polyline_from_points(tunnel_tbm_pts).tube(radius=20)
 
 
-    # In[ ]:
+    # In[66]:
 
 
     array_advance = "AR"
@@ -290,16 +312,16 @@ def bind_to_plotter(plotter):
 
     # # Add Geotechnical Data
 
-    # In[ ]:
+    # In[21]:
 
 
-    bh = pd.read_csv("data/CI-Boreholes.csv")
-    spt = pd.read_csv("data/CI-N160.csv")
-    att = pd.read_csv("data/CI-Atterberg.csv")
-    bh_df = pd.read_csv("data/CI-Geology-Updated.csv", encoding="unicode_escape")
+    bh = pd.read_csv(r"data/CI-Boreholes.csv")
+    spt = pd.read_csv(r"data/CI-N160.csv")
+    att = pd.read_csv(r"data/CI-Atterberg.csv")
+    bh_df = pd.read_csv(r"data/CI-Geology-Updated.csv", encoding="unicode_escape")
 
 
-    # In[ ]:
+    # In[22]:
 
 
     bh_df = bh_df.drop(["GEOL_DESC", "GEOL_STAT", "GEOL_LEG"], axis=1)
@@ -322,7 +344,7 @@ def bind_to_plotter(plotter):
     bh_geol.head()
 
 
-    # In[ ]:
+    # In[23]:
 
 
     g = bh_geol.groupby("PointID", as_index=False).last()
@@ -339,7 +361,7 @@ def bind_to_plotter(plotter):
     bh_new_geol.to_csv("BH-Modeling.csv")
 
 
-    # In[ ]:
+    # In[24]:
 
 
     # bh_df = bh_df.dropna()
@@ -353,7 +375,7 @@ def bind_to_plotter(plotter):
     bh_new_geol.loc[same_depth]
 
 
-    # In[ ]:
+    # In[25]:
 
 
     spat_ref = ["Easting", "Northing", "SE"]
@@ -364,7 +386,7 @@ def bind_to_plotter(plotter):
     boreholes = bh_lines.tube(radius=20)
 
 
-    # In[ ]:
+    # In[26]:
 
 
     bh["Bottom Elevation"] = bh["Elevation"] - bh["Final Depth (m)"]
@@ -384,7 +406,7 @@ def bind_to_plotter(plotter):
     bh_labels["Borehole Labels"] = bh["Borehole"]
 
 
-    # In[ ]:
+    # In[19]:
 
 
     # pl = pv.Plotter()
@@ -404,14 +426,14 @@ def bind_to_plotter(plotter):
 
     # ## SPT Data
 
-    # In[ ]:
+    # In[27]:
 
 
     spt = pd.read_csv("data/CI-N160.csv")
     spt.head()
 
 
-    # In[ ]:
+    # In[28]:
 
 
     spt["Start Elevation"] = spt["Elevation"] - spt["ISPT_DPTH"]
@@ -431,7 +453,7 @@ def bind_to_plotter(plotter):
     spt_tube
 
 
-    # In[ ]:
+    # In[22]:
 
 
     # pl = pv.Plotter()
@@ -442,14 +464,14 @@ def bind_to_plotter(plotter):
     # pl.show()
 
 
-    # In[ ]:
+    # In[29]:
 
 
     spt_stats = pd.read_csv("data/N160-SGS-Stats.csv")
     spt_stats.head()
 
 
-    # In[ ]:
+    # In[30]:
 
 
     spat_ref1 = ["Easting", "Northing", "Elevation"]
@@ -459,7 +481,7 @@ def bind_to_plotter(plotter):
     geo_sim_spt = PVGeo.filters.VoxelizePoints().apply(geo_sim_spt_pts)
 
 
-    # In[ ]:
+    # In[23]:
 
 
     # geo_sim_spt_pts.plot(scalars="Mean-SPT")
@@ -467,14 +489,14 @@ def bind_to_plotter(plotter):
 
     # ## ECBF Elevation Uncertainty
 
-    # In[ ]:
+    # In[31]:
 
 
     ecbf_stats = pd.read_csv("data/ECBF-SGS-Stats.csv")
     ecbf_stats.head()
 
 
-    # In[ ]:
+    # In[32]:
 
 
     spat_ecbf = ["Easting", "Northing", "Mean-Elevation"]
@@ -486,7 +508,7 @@ def bind_to_plotter(plotter):
 
     # # Geostatistical Modeling Output
 
-    # In[ ]:
+    # In[33]:
 
 
     # This comes from the R Scripts for modeling
@@ -495,7 +517,7 @@ def bind_to_plotter(plotter):
     a.head()
 
 
-    # In[ ]:
+    # In[34]:
 
 
     # Caluclating uncertainty
@@ -508,7 +530,7 @@ def bind_to_plotter(plotter):
     a.head()
 
 
-    # In[ ]:
+    # In[35]:
 
 
     ref = ["Easting", "Northing", "Elevation"]
@@ -531,14 +553,13 @@ def bind_to_plotter(plotter):
 
     # # Visualization
 
-    # In[ ]:
+    # In[67]:
 
 
     # 3D Interactive Rendering Window of Central Interceptor Excavation Environment
     # plotter = pvqt.BackgroundPlotter(
     #     title="ARUP-Geotechnical Information Visualization and Analyses (GIVA)"
     # )
-
     # Scalar Bar Configurations
     dargs = dict(scalars="Uncertainty", cmap="seismic", opacity=1.0, clim=[0, 1])
 
@@ -1093,4 +1114,4 @@ def bind_to_plotter(plotter):
     tbm_menu.addAction("Mean TBM Parameters", add_tbmplots)
 
 
-# In[ ]:
+    # In[ ]:
