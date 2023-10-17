@@ -1,21 +1,15 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import PVGeo
 # Import necessary packages
 import pyvista as pv
 import pyvistaqt as pvqt
-import numpy as np
-import PVGeo
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter, AutoMinorLocator
 from matplotlib.colors import ListedColormap
+from matplotlib.ticker import (AutoMinorLocator, FormatStrFormatter,
+                               MultipleLocator)
 from scipy.stats import entropy
-
-import matplotlib as mpl
 
 mpl.rcParams["figure.dpi"] = 500
 
@@ -123,20 +117,15 @@ def decompose_wells(wpdi):
     return composite
 
 
-
 def bind_to_plotter(plotter):
-
     # # Add Tunnel Alignment and Identify Ring Markers
 
     # In[3]:
 
-
     tunnel_var = pd.read_csv("data/Final-DTA.csv")
     tunnel_var.tail()
 
-
     # In[4]:
-
 
     # Select very 50th ring for labels
     ring_sel = tunnel_var[tunnel_var.index % 50 == 0]
@@ -147,17 +136,13 @@ def bind_to_plotter(plotter):
     end_ring_sel = ring_sel.copy()
     end_ring_sel[:, 2] -= 50
 
-
     # In[5]:
-
 
     line_ring = np.concatenate((ring_sel, end_ring_sel), axis=1).reshape(
         (-1, 3)
     )  # from six columns to three columns, start and end on consecutive rows
 
-
     # In[6]:
-
 
     vertices = line_ring
     lines = []
@@ -167,9 +152,7 @@ def bind_to_plotter(plotter):
     ring_labels = pv.PolyData(end_ring_sel)
     ring_labels["Ring Labels"] = [f"R-{i*50}" for i in range(ring_labels.n_points)]
 
-
     # In[7]:
-
 
     spat_ref = ["Easting", "Northing", "Tun-Elevation"]
     tunnel_ring_pts = pv.PolyData(tunnel_var[spat_ref].values)
@@ -181,9 +164,7 @@ def bind_to_plotter(plotter):
     tunnel_ci_ring = polyline_from_points(tunnel_ring_pts).tube(radius=r)
     tunnel_ci_ch = polyline_from_points(tunnel_ch_pts).tube(radius=r)
 
-
     # In[8]:
-
 
     tunnel_ci_path = polyline_from_points(tunnel_ring_pts)
     r = 10
@@ -191,30 +172,31 @@ def bind_to_plotter(plotter):
     spline = pv.Spline(tunnel_ci_path.points, n_points=100)
     # geo_profile = geo_sim.slice_along_line(spline)
 
-
     # # Add Real-Time Tunnel Boring Machine Data
 
     # In[63]:
 
-
     tbm_data_1 = pd.read_csv(
-        "data/CI Main Tunnel_Rajat-Output_ring_1_to_948.csv",sep=";")
+        "data/CI Main Tunnel_Rajat-Output_ring_1_to_948.csv", sep=";"
+    )
     tbm_data_2 = pd.read_csv(
-        "data/CI Main Tunnel P2_Rajat-Output_ring_948_to_2563.csv",sep=";")
+        "data/CI Main Tunnel P2_Rajat-Output_ring_948_to_2563.csv", sep=";"
+    )
     tbm_data_3 = pd.read_csv(
-        "data/CI Main Tunnel P3_Rajat-Output_ring_2564_to_4755.csv",sep=";")
+        "data/CI Main Tunnel P3_Rajat-Output_ring_2564_to_4755.csv", sep=";"
+    )
     tbm_data_4 = pd.read_csv(
-        "data/CI Main Tunnel P4_Rajat-Output_ring_4756_to_5023.csv",sep=";")
-
+        "data/CI Main Tunnel P4_Rajat-Output_ring_4756_to_5023.csv", sep=";"
+    )
 
     # In[64]:
 
-
-    tbm_data = pd.concat([tbm_data_1, tbm_data_2,tbm_data_3,tbm_data_4], ignore_index=True)
+    tbm_data = pd.concat(
+        [tbm_data_1, tbm_data_2, tbm_data_3, tbm_data_4], ignore_index=True
+    )
     tbm_data["Timestamp"] = pd.to_datetime(tbm_data["Timestamp"])
     tbm_data = tbm_data[
-        (tbm_data["Earth Pressure.EP2"] <= 10)
-        & (tbm_data["Earth Pressure.EP2"] > 0)
+        (tbm_data["Earth Pressure.EP2"] <= 10) & (tbm_data["Earth Pressure.EP2"] > 0)
     ]
     tbm_data = tbm_data.drop("Unnamed: 26", axis=1)
     tbm_data = tbm_data.round(2)
@@ -222,32 +204,28 @@ def bind_to_plotter(plotter):
     tbm_data_mean = tbm_data_mean.dropna(axis="rows")
     tbm_data_mean.head()
 
-
     # In[10]:
 
-
-    #tbm_data = pd.concat([tbm_data_1, tbm_data_2, tbm_data_3], ignore_index=True)
+    # tbm_data = pd.concat([tbm_data_1, tbm_data_2, tbm_data_3], ignore_index=True)
     # Convert Timestamp colume to DateTime
-    #tbm_data["Timestamp"] = pd.to_datetime(tbm_data["Timestamp"])
-    #tbm_data = tbm_data[tbm_data["Ring"] >= 1]
-    #tbm_data = tbm_data[
+    # tbm_data["Timestamp"] = pd.to_datetime(tbm_data["Timestamp"])
+    # tbm_data = tbm_data[tbm_data["Ring"] >= 1]
+    # tbm_data = tbm_data[
     #   (tbm_data["QDV_Excavation_chamber_pressure_02"] <= 10)
     #  & (tbm_data["QDV_Excavation_chamber_pressure_02"] > 0)
-    #]
-    #tbm_data_mean = tbm_data.groupby(["Ring"]).mean().reset_index()
-    #tbm_data_mean = tbm_data_mean.drop("Unnamed: 14", axis=1)
-    #tbm_data_mean = tbm_data_mean.drop("QDV_Drill_rig_01_rotation_speed", axis=1)
+    # ]
+    # tbm_data_mean = tbm_data.groupby(["Ring"]).mean().reset_index()
+    # tbm_data_mean = tbm_data_mean.drop("Unnamed: 14", axis=1)
+    # tbm_data_mean = tbm_data_mean.drop("QDV_Drill_rig_01_rotation_speed", axis=1)
     # tbm_data_mean = tbm_data_mean.drop('Ring', 1)
-    #tbm_data_mean.columns = tbm_data_mean.columns.str.replace(r"QDV_", "")
-    #tbm_data_mean["Advance_thrust_force"] = tbm_data_mean["Advance_thrust_force"] / 10
-    #tbm_data_mean = tbm_data_mean.round(2)
-    #tbm_data_mean = pd.merge(tbm_data_mean, tunnel_var, on=["Ring"], how="left")
-    #tbm_data_mean = tbm_data_mean.dropna(axis="rows")
+    # tbm_data_mean.columns = tbm_data_mean.columns.str.replace(r"QDV_", "")
+    # tbm_data_mean["Advance_thrust_force"] = tbm_data_mean["Advance_thrust_force"] / 10
+    # tbm_data_mean = tbm_data_mean.round(2)
+    # tbm_data_mean = pd.merge(tbm_data_mean, tunnel_var, on=["Ring"], how="left")
+    # tbm_data_mean = tbm_data_mean.dropna(axis="rows")
     # tbm_data_mean = tbm_data_mean[tbm_data_mean['Ring'] < 225]
 
-
     # In[65]:
-
 
     spat_ref = ["Easting", "Northing", "Tun-Elevation"]
     tunnel_tbm_pts = pv.PolyData(tbm_data_mean[spat_ref].values)
@@ -262,9 +240,7 @@ def bind_to_plotter(plotter):
     # # Make tubes/tunnels
     tunnel_ci_tbm = polyline_from_points(tunnel_tbm_pts).tube(radius=20)
 
-
     # In[66]:
-
 
     array_advance = "AR"
     array_penetration = "PR"
@@ -273,18 +249,14 @@ def bind_to_plotter(plotter):
     array_pressure = "EP"
     ring_id = "Ring"
 
-
     # # Add Digital Elevation Model
 
     # In[ ]:
 
-
     ground_surf = tunnel_var[["Easting", "Northing", "Ground-Elevation"]]
     ground_surf = ground_surf.to_numpy()
 
-
     # In[ ]:
-
 
     # sargs2 = dict(height=0.25, vertical=True, position_x=0.05, position_y=0.95, title_font_size = 30, label_font_size=15)
     # plotter = pv.Plotter(title="ARUP-Geotechnical Information Visualization and Analyses (GIVA)")
@@ -293,9 +265,7 @@ def bind_to_plotter(plotter):
     # plotter.add_lines(ground_surf,color="red",width=3)
     # plotter.enable_point_picking(callback=callback, show_message=True,color='pink', point_size=20,use_mesh=True, show_point=True)
 
-
     # In[ ]:
-
 
     dem = pd.read_csv("data/dem.csv")
     dem2 = pd.read_csv("data/dem2.csv")
@@ -309,20 +279,16 @@ def bind_to_plotter(plotter):
     dem_sel_cloud = pv.PolyData(dem_sel[spat_ref].values)
     dem2_sel_cloud = pv.PolyData(dem2_sel[spat_ref].values)
 
-
     # # Add Geotechnical Data
 
     # In[21]:
-
 
     bh = pd.read_csv(r"data/CI-Boreholes.csv")
     spt = pd.read_csv(r"data/CI-N160.csv")
     att = pd.read_csv(r"data/CI-Atterberg.csv")
     bh_df = pd.read_csv(r"data/CI-Geology-Updated.csv", encoding="unicode_escape")
 
-
     # In[22]:
-
 
     bh_df = bh_df.drop(["GEOL_DESC", "GEOL_STAT", "GEOL_LEG"], axis=1)
     bh_geol = pd.merge(
@@ -343,9 +309,7 @@ def bind_to_plotter(plotter):
     bh_geol.drop_duplicates(inplace=True)
     bh_geol.head()
 
-
     # In[23]:
-
 
     g = bh_geol.groupby("PointID", as_index=False).last()
     g["Depth"] = g["GEOL_BASE"]
@@ -360,9 +324,7 @@ def bind_to_plotter(plotter):
 
     bh_new_geol.to_csv("BH-Modeling.csv")
 
-
     # In[24]:
-
 
     # bh_df = bh_df.dropna()
     bh_new_geol.drop_duplicates(
@@ -374,9 +336,7 @@ def bind_to_plotter(plotter):
     same_depth.sort()
     bh_new_geol.loc[same_depth]
 
-
     # In[25]:
-
 
     spat_ref = ["Easting", "Northing", "SE"]
     bh_pts = pv.PolyData(bh_new_geol[spat_ref].values)
@@ -385,9 +345,7 @@ def bind_to_plotter(plotter):
     bh_lines = decomp.combine().extract_geometry()
     boreholes = bh_lines.tube(radius=20)
 
-
     # In[26]:
-
 
     bh["Bottom Elevation"] = bh["Elevation"] - bh["Final Depth (m)"]
     bh_start = bh[["Easting", "Northing", "Elevation"]]
@@ -405,9 +363,7 @@ def bind_to_plotter(plotter):
     bh_labels = pv.PolyData(bh_start)
     bh_labels["Borehole Labels"] = bh["Borehole"]
 
-
     # In[19]:
-
 
     # pl = pv.Plotter()
     # sargs = dict(
@@ -421,20 +377,16 @@ def bind_to_plotter(plotter):
     # pl.add_mesh(boreholes, cmap=ESU_COLORMAP, scalars="Unit", scalar_bar_args=sargs)
     # pl.show()
 
-
     # # Continuous Geotechnical Data
 
     # ## SPT Data
 
     # In[27]:
 
-
     spt = pd.read_csv("data/CI-N160.csv")
     spt.head()
 
-
     # In[28]:
-
 
     spt["Start Elevation"] = spt["Elevation"] - spt["ISPT_DPTH"]
     spt["End Elevation"] = spt["Elevation"] - spt["Depth"]
@@ -452,9 +404,7 @@ def bind_to_plotter(plotter):
     spt_tube["SPT"] = spt["N1_60"]
     spt_tube
 
-
     # In[22]:
-
 
     # pl = pv.Plotter()
     # # pl.add_mesh(tunnel_ci_ring, color='white')
@@ -463,16 +413,12 @@ def bind_to_plotter(plotter):
     # # pl.add_mesh(geo_sim, opacity=0.2, show_scalar_bar=True,lighting=True,cmap='seismic',scalars='Mean-SPT')
     # pl.show()
 
-
     # In[29]:
-
 
     spt_stats = pd.read_csv("data/N160-SGS-Stats.csv")
     spt_stats.head()
 
-
     # In[30]:
-
 
     spat_ref1 = ["Easting", "Northing", "Elevation"]
     # Create the points
@@ -480,24 +426,18 @@ def bind_to_plotter(plotter):
     # Voxelize the points
     geo_sim_spt = PVGeo.filters.VoxelizePoints().apply(geo_sim_spt_pts)
 
-
     # In[23]:
 
-
     # geo_sim_spt_pts.plot(scalars="Mean-SPT")
-
 
     # ## ECBF Elevation Uncertainty
 
     # In[31]:
 
-
     ecbf_stats = pd.read_csv("data/ECBF-SGS-Stats.csv")
     ecbf_stats.head()
 
-
     # In[32]:
-
 
     spat_ecbf = ["Easting", "Northing", "Mean-Elevation"]
     geo_sim_ecbf_pts = points_to_poly_data(ecbf_stats, spat_ecbf)
@@ -505,20 +445,16 @@ def bind_to_plotter(plotter):
     # geo_sim_ecbf = PVGeo.filters.VoxelizePoints().apply(geo_sim_ecbf_pts)
     geo_sim_ecbf_pts
 
-
     # # Geostatistical Modeling Output
 
     # In[33]:
-
 
     # This comes from the R Scripts for modeling
     a = pd.read_csv("data/CI-GeolModel.csv")
     a.drop("Class", axis=1, inplace=True)
     a.head()
 
-
     # In[34]:
-
 
     # Caluclating uncertainty
     entropy_cols = [col for col in a.columns if "Macro" in col]
@@ -529,18 +465,14 @@ def bind_to_plotter(plotter):
     a["E"] = a_unc["E"]
     a.head()
 
-
     # In[35]:
-
 
     ref = ["Easting", "Northing", "Elevation"]
     geo_sim_pts = points_to_poly_data(a, ref)
     geo_sim = PVGeo.filters.VoxelizePoints().apply(geo_sim_pts)
     geo_profile = geo_sim.slice_along_line(spline)
 
-
     # In[ ]:
-
 
     # pl=pv.Plotter()
     # # pl.add_mesh(boreholes, cmap=ESU_COLORMAP,scalars='Unit',scalar_bar_args=sargs)
@@ -550,11 +482,9 @@ def bind_to_plotter(plotter):
     # #pl.add_mesh(slices)
     # pl.show()
 
-
     # # Visualization
 
     # In[67]:
-
 
     # 3D Interactive Rendering Window of Central Interceptor Excavation Environment
     # plotter = pvqt.BackgroundPlotter(
@@ -607,7 +537,6 @@ def bind_to_plotter(plotter):
     cmap_spt = plt.cm.autumn
     cmap_reversed = plt.cm.get_cmap("autumn_r")
 
-
     def callback_penetration(mesh, pid):
         point = tunnel_ci_tbm.points[pid]
         label = [
@@ -618,7 +547,6 @@ def bind_to_plotter(plotter):
             )
         ]
         plotter.add_point_labels(point, label, **dargs)
-
 
     def callback_advance(mesh, pid):
         point = tunnel_ci_tbm.points[pid]
@@ -631,26 +559,27 @@ def bind_to_plotter(plotter):
         ]
         plotter.add_point_labels(point, label, **dargs)
 
-
     def callback_thrust(mesh, pid):
         point = tunnel_ci_tbm.points[pid]
         label = [
             "Ring: {}\n{}: {}".format(
-                tunnel_ci_tbm[ring_id][pid], array_thrust, tunnel_ci_tbm[array_thrust][pid]
+                tunnel_ci_tbm[ring_id][pid],
+                array_thrust,
+                tunnel_ci_tbm[array_thrust][pid],
             )
         ]
         plotter.add_point_labels(point, label, **dargs)
-
 
     def callback_torque(mesh, pid):
         point = tunnel_ci_tbm.points[pid]
         label = [
             "Ring: {}\n{}: {}".format(
-                tunnel_ci_tbm[ring_id][pid], array_torque, tunnel_ci_tbm[array_torque][pid]
+                tunnel_ci_tbm[ring_id][pid],
+                array_torque,
+                tunnel_ci_tbm[array_torque][pid],
             )
         ]
         plotter.add_point_labels(point, label, **dargs)
-
 
     def callback_pressure(mesh, pid):
         point = tunnel_ci_tbm.points[pid]
@@ -663,38 +592,31 @@ def bind_to_plotter(plotter):
         ]
         plotter.add_point_labels(point, label, **dargs)
 
-
     # ************** Start of Button Commands************************
-
 
     def add_tunnel_ci():
         plotter.add_mesh(tunnel_ci_ring, color="white", name="Tunnel Alignment")
 
-
     user_menu = plotter.main_menu.addMenu("Base Layers")
     user_menu.addAction("Add Tunnel Alignment", add_tunnel_ci)
-
 
     def add_ring_markers():
         plotter.add_mesh(ring_label_mesh.tube(radius=1.2), color="white")
         plotter.add_point_labels(ring_labels, "Ring Labels", point_size=3, font_size=12)
 
-
     user_menu.addAction("Add Ring Markers", add_ring_markers)
-
 
     def add_ground_surface():
         #     plotter.add_lines(ground_surf,color="red",width=3)
         plotter.add_mesh(dem_sel_cloud, color="brown", opacity=0.5)
         plotter.add_mesh(dem2_sel_cloud, color="brown", opacity=0.5)
 
-
     user_menu.addAction("Add Ground Surface", add_ground_surface)
 
-
     def add_boreholes_labels():
-        plotter.add_point_labels(bh_labels, "Borehole Labels", point_size=3, font_size=12)
-
+        plotter.add_point_labels(
+            bh_labels, "Borehole Labels", point_size=3, font_size=12
+        )
 
     user_menu.addAction("Add Borehole Labels", add_boreholes_labels)
 
@@ -705,30 +627,31 @@ def bind_to_plotter(plotter):
     # geotech_menu = plotter.main_menu.addMenu('Geotechnical Data')
     # geotech_menu.addAction('Show BHs', add_bh)
 
-
     def add_geol():
         #     plotter.add_mesh(bh_tube.tube(radius=10), color='white')
         plotter.add_mesh(
-            boreholes, cmap=ESU_COLORMAP, scalars="Unit", scalar_bar_args=dict(**sargs, n_labels=8)
+            boreholes,
+            cmap=ESU_COLORMAP,
+            scalars="Unit",
+            scalar_bar_args=dict(**sargs, n_labels=8),
         )
-
 
     geotech_menu = plotter.main_menu.addMenu("Geotechnical Data")
     geotech_menu.addAction("Add Boreholes", add_geol)
 
-
     def add_spt():
         plotter.add_mesh(spt_tube.tube(radius=20), scalars="SPT", cmap=cmap_reversed)
-        plotter.add_point_labels(bh_labels, "Borehole Labels", point_size=3, font_size=12)
-
+        plotter.add_point_labels(
+            bh_labels, "Borehole Labels", point_size=3, font_size=12
+        )
 
     geotech_menu.addAction("Show SPTs", add_spt)
 
-
     def add_att():
         plotter.add_mesh(bh_tube.tube(radius=10), color="white")
-        plotter.add_point_labels(bh_labels, "Borehole Labels", point_size=3, font_size=12)
-
+        plotter.add_point_labels(
+            bh_labels, "Borehole Labels", point_size=3, font_size=12
+        )
 
     AttMenu = geotech_menu.addMenu("Show Atterberg")
     AttMenu.addAction("Show LL")
@@ -741,7 +664,6 @@ def bind_to_plotter(plotter):
     # geotech_menu = plotter.main_menu.addMenu('Geotechnical Data')
     # geotech_menu.addAction('Show BHs', add_bh)
 
-
     def add_geol_model():
         plotter.add_mesh(
             geo_sim,
@@ -752,10 +674,8 @@ def bind_to_plotter(plotter):
             scalars="MP",
         )
 
-
     models_menu = plotter.main_menu.addMenu("Stochastic Models")
     models_menu.addAction("Most Probable Model", add_geol_model)
-
 
     def add_geol_uncer():
         plotter.add_mesh(
@@ -768,39 +688,30 @@ def bind_to_plotter(plotter):
             scalar_bar_args={"title": "Uncertainty"},
         )
 
-
     models_menu.addAction("Geological Uncertainty", add_geol_uncer)
-
 
     def add_spt_model():
         plotter.add_mesh(geo_sim_spt, cmap="inferno_r", scalars="Mean-SPT")
 
-
     models_menu.addAction("Mean SPT Model", add_spt_model)
-
 
     def add_spt_25qt():
         plotter.add_mesh(geo_sim_spt, cmap="inferno_r", scalars="SPT-25QT")
 
-
     def add_spt_50qt():
         plotter.add_mesh(geo_sim_spt, cmap="inferno_r", scalars="SPT-50QT")
-
 
     def add_spt_75qt():
         plotter.add_mesh(geo_sim_spt, cmap="inferno_r", scalars="SPT-75QT")
 
-
     def add_spt_sd():
         plotter.add_mesh(geo_sim_spt, cmap="inferno_r", scalars="SD-SPT")
-
 
     SPTMenu = models_menu.addMenu("SPT Uncertainty")
     SPTMenu.addAction("SPT SD", add_spt_sd)
     SPTMenu.addAction("SPT 25QT", add_spt_25qt)
     SPTMenu.addAction("SPT 50QT", add_spt_50qt)
     SPTMenu.addAction("SPT 75QT", add_spt_75qt)
-
 
     def add_ecbf_model():
         plotter.add_mesh(
@@ -810,9 +721,7 @@ def bind_to_plotter(plotter):
             scalar_bar_args={"title": "ECBF-Mean Elevation (m)"},
         )
 
-
     models_menu.addAction("ECBF Mean Elevation", add_ecbf_model)
-
 
     def add_ecbf_90():
         plotter.add_mesh(
@@ -822,7 +731,6 @@ def bind_to_plotter(plotter):
             scalar_bar_args={"title": "90 PI ECBF Elevation (m)"},
         )
 
-
     def add_ecbf_95():
         plotter.add_mesh(
             geo_sim_ecbf_pts,
@@ -831,10 +739,8 @@ def bind_to_plotter(plotter):
             scalar_bar_args={"title": "95 PI ECBF Elevation (m)"},
         )
 
-
     def add_ecbf_sd():
         plotter.add_mesh(geo_sim_ecbf_pts, cmap="inferno_r", scalars="SD-Elevation")
-
 
     ECBFMenu = models_menu.addMenu("ECBF Elevation Uncertainty")
     ECBFMenu.addAction("ECBF Elevation SD", add_ecbf_sd)
@@ -847,7 +753,6 @@ def bind_to_plotter(plotter):
     slices_spt = ManySlicesAlongPoints(n_slices=50).apply(tunnel_ring_pts, geo_sim_spt)
     slices_geol = ManySlicesAlongPoints(n_slices=50).apply(tunnel_ring_pts, geo_sim)
 
-
     def add_geol_profile():
         plotter.add_mesh(
             geo_profile,
@@ -858,10 +763,8 @@ def bind_to_plotter(plotter):
             scalars="MP",
         )
 
-
     models_menu = plotter.main_menu.addMenu("Profiles")
     models_menu.addAction("Most Probable Profile", add_geol_profile)
-
 
     def add_uncer_profile():
         plotter.add_mesh(
@@ -873,18 +776,14 @@ def bind_to_plotter(plotter):
             scalars="E",
         )
 
-
     models_menu.addAction("Uncertainty Profile", add_uncer_profile)
-
 
     def add_geol_slices():
         plotter.add_mesh(
             slices_geol, cmap=ESU_COLORMAP, scalars="MP", show_scalar_bar=False
         )
 
-
     models_menu.addAction("Transverse Profiles (Geology)", add_geol_slices)
-
 
     def add_uncer_slices():
         plotter.add_mesh(
@@ -896,16 +795,12 @@ def bind_to_plotter(plotter):
             lighting=True,
         )
 
-
     models_menu.addAction("Transverse Profiles (Uncertainty)", add_uncer_slices)
-
 
     def add_spt_slices():
         plotter.add_mesh(slices_spt, cmap="inferno_r", scalars="Mean-SPT")
 
-
     models_menu.addAction("Transverse Profiles (SPT)", add_spt_slices)
-
 
     # ********************************************************BLOCK TBM**************************************************
     def add_rop():
@@ -926,10 +821,8 @@ def bind_to_plotter(plotter):
         #     show_point=True,
         # )
 
-
     tbm_menu = plotter.main_menu.addMenu("TBM Parameters")
     tbm_menu.addAction("Add Penetration", add_rop)
-
 
     def add_advance():
         plotter.add_mesh(
@@ -949,9 +842,7 @@ def bind_to_plotter(plotter):
         #     show_point=True,
         # )
 
-
     tbm_menu.addAction("Add Advance Rate", add_advance)
-
 
     def add_chamber():
         plotter.add_mesh(
@@ -971,9 +862,7 @@ def bind_to_plotter(plotter):
         #     show_point=True,
         # )
 
-
     tbm_menu.addAction("Add Chamber Pressure", add_chamber)
-
 
     def add_thrust():
         plotter.add_mesh(
@@ -993,9 +882,7 @@ def bind_to_plotter(plotter):
         #     show_point=True,
         # )
 
-
     tbm_menu.addAction("Add Thrust Force", add_thrust)
-
 
     def add_torque():
         plotter.add_mesh(
@@ -1015,9 +902,7 @@ def bind_to_plotter(plotter):
         #     show_point=True,
         # )
 
-
     tbm_menu.addAction("Add Torque", add_torque)
-
 
     def add_tbmplots():
         # get_ipython().run_line_magic('matplotlib', 'qt')
@@ -1110,8 +995,6 @@ def bind_to_plotter(plotter):
         axs[4].grid(True)
         fig.tight_layout()
 
-
     tbm_menu.addAction("Mean TBM Parameters", add_tbmplots)
-
 
     # In[ ]:
