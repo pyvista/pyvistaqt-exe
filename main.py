@@ -52,7 +52,7 @@ class MyMainWindow(MainWindow):
         file_menu.addAction(exitButton)
 
         view_menu = self.main_menu.addMenu("View")
-        view_menu.addAction("Clear", self.plotter.clear_actors)
+        view_menu.addAction("Clear", self.plotter.clear)
         view_menu.addAction("Scale Axes", self.scale_axes_dialog)
 
         view_menu.addSeparator()
