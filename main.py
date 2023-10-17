@@ -29,6 +29,7 @@ ICON_FILE = resource_path(os.path.join(".", "icon.ico"))
 
 class MyMainWindow(MainWindow):
     """Extandable MainWindow for PyVistaQt standalone applications."""
+
     def __init__(self, parent=None, show=True):
         QtWidgets.QMainWindow.__init__(self, parent)
 
