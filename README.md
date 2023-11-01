@@ -13,6 +13,29 @@ standalone PyVistaQt application.
 - Create custom menus and actions
 - Automated building on CI
 
-## Automatied Building
+## Locally Build
+
+On any OS, you can create your own standalone application with:
+
+```
+pip install -r requirements.txt
+pyinstaller main.spec
+```
+
+The executable will then be located in the `dist/main` directory. To distribute, you can zip this directory.
+
+
+## Automatized Build
 
 The GitHub Actions workflow here will build the Windows installable executable and upload as an artifact to the workflow run.
+
+This workflow also contains a `Release` step which will upload the executable in the release on tag. Generate a tag with:
+
+```
+git tag v0.1.0
+git push --tags
+```
+
+## License
+
+This repository uses the MIT License. Contributions are welcome.
